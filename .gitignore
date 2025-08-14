@@ -1,1 +1,8 @@
 .idea
+lab_1/pom.xml
+
+
+index.html
+lab_1/target/classes/org/example/Main.class
+lab_1/target/classes/org/example/mainAuto/Auto$Model.class
+lab_1/target/classes/org/example/mainAuto/Auto.class
