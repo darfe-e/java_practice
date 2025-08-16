@@ -1,5 +1,7 @@
 package org.example;
 
+import org.example.exceptions.ModelPriceOutOfBoundsException;
+import org.example.exceptions.NoSuchModelNameException;
 import org.example.mainAuto.Auto;
 import java.util.Arrays;
 import java.util.InputMismatchException;
@@ -83,7 +85,12 @@ public class Main {
         String oldName = scanner.nextLine();
         System.out.print("Введите новое название: ");
         String newName = scanner.nextLine();
-        auto.changeNameOfModel(oldName, newName);
+        try {
+            auto.changeNameOfModel(oldName, newName);
+        }catch (NoSuchModelNameException ex){
+            System.out.println("No such  model:" + ex.getMessage());
+        }
+
         System.out.println("Название изменено!");
     }
 
@@ -101,7 +108,11 @@ public class Main {
         System.out.print("Введите название модели для удаления: ");
         String name = scanner.nextLine();
         float price = getValidFloatInput("Введите цену модели: ");
-        auto.deleteByNameAndCoast(name, price);
+        try {
+            auto.deleteByNameAndCoast(name, price);
+        }catch (NoSuchModelNameException ex){
+            System.out.println("No such  model:" + ex.getMessage());
+        }
         System.out.println("Модель удалена!");
     }
 
@@ -109,14 +120,29 @@ public class Main {
         System.out.print("Введите название модели: ");
         String name = scanner.nextLine();
         float newPrice = getValidFloatInput("Введите новую цену: ");
-        auto.changeCostByName(name, newPrice);
+        try {
+            auto.changeCostByName(name, newPrice);
+        } catch (ModelPriceOutOfBoundsException ex) {
+            System.err.println("Ошибка цены: " + ex.getMessage());
+            System.err.println("Введите положительное значение цены!");
+        } catch (NoSuchModelNameException e) {
+            System.err.println("Ошибка модели: " + e.getMessage());
+            System.err.println("Проверьте правильность названия модели!");
+        }
+
         System.out.println("Цена изменена!");
     }
 
     private static void getModelPrice() {
         System.out.print("Введите название модели: ");
         String name = scanner.nextLine();
-        float price = auto.getCoastByName(name);
+        float price = 0;
+        try {
+        price = auto.getCoastByName(name);
+        }catch (NoSuchModelNameException ex){
+            System.out.println("No such  model:" + ex.getMessage());
+        }
+
         if (price != 0) {
             System.out.println("Цена модели: " + price);
         }

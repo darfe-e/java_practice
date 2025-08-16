@@ -6,3 +6,7 @@ index.html
 lab_1/target/classes/org/example/Main.class
 lab_1/target/classes/org/example/mainAuto/Auto$Model.class
 lab_1/target/classes/org/example/mainAuto/Auto.class
+index.html
+lab_1/target/classes/org/example/exceptions/NoSuchModelNameException.class
+lab_1/target/classes/org/example/exceptions/ModelPriceOutOfBoundsException.class
+lab_1/target/classes/org/example/exceptions/DuplicateModelNameException.class

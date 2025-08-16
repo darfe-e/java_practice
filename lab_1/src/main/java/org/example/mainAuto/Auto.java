@@ -1,5 +1,8 @@
 package org.example.mainAuto;
 
+import org.example.exceptions.ModelPriceOutOfBoundsException;
+import org.example.exceptions.NoSuchModelNameException;
+
 import java.util.Arrays;
 
 public class Auto {
@@ -34,10 +37,17 @@ public class Auto {
         }
     }
 
-    public void changeNameOfModel(String prevName, String newName){
-        for(Model model: arrayOfModels){
-            if (model.getName().equals(prevName)) model.setName(newName);
+    public void changeNameOfModel(String prevName, String newName) throws NoSuchModelNameException {
+        if (arrayOfModels == null) {
+            throw new NoSuchModelNameException(prevName);
         }
+        for (Model model : arrayOfModels) {
+            if (model != null && model.getName().equals(prevName)) {
+                model.setName(newName);
+                return;
+            }
+        }
+        throw new NoSuchModelNameException(prevName);
     }
 
     public String[] returnAllModelNames (){
@@ -56,44 +66,73 @@ public class Auto {
         return ModelsCoast;
     }
 
-    public void deleteByNameAndCoast (String name, float coast){
-        for(int i = 0; i < arrayOfModels.length; i++){
-            if (arrayOfModels[i].getName().equals(name) && (Float.compare(arrayOfModels[i].getCoast(), coast) == 0)) {
-                Model[] newModels = new Model[SizeOfModels - 1];
-                if (i == 0){
-                    System.arraycopy(arrayOfModels, 1, newModels, 0, --SizeOfModels);
-                    arrayOfModels = newModels;
-                }
-                else if (i == arrayOfModels.length - 1){
-                    System.arraycopy(arrayOfModels, 0, newModels, 0, --SizeOfModels);
-                    arrayOfModels = newModels;
-                }
-                else {
-                    System.arraycopy(arrayOfModels, 0, newModels, 0, i);
-                    System.arraycopy(arrayOfModels, i + 1, newModels, i, --SizeOfModels - i);
-                    arrayOfModels = newModels;
-                }
+    public void deleteByNameAndCoast(String name, float coast) throws NoSuchModelNameException {
+        if (arrayOfModels == null || arrayOfModels.length == 0) {
+            throw new NoSuchModelNameException(name);
+        }
+
+        for (int i = 0; i < arrayOfModels.length; i++) {
+            if (arrayOfModels[i] == null) {
+                continue; // Пропускаем null элементы
+            }
+
+            boolean nameMatches = arrayOfModels[i].getName().equals(name);
+            boolean coastMatches = Float.compare(arrayOfModels[i].getCoast(), coast) == 0;
+
+            if (nameMatches && coastMatches) {
+                Model[] newModels = new Model[arrayOfModels.length - 1];
+                System.arraycopy(arrayOfModels, 0, newModels, 0, i);
+                System.arraycopy(arrayOfModels, i + 1, newModels, i, arrayOfModels.length - i - 1);
+
+                arrayOfModels = newModels;
+                SizeOfModels--;
+                return;
+            }
+            else if (nameMatches) {
+                System.out.println("\nЦена не соответствует указанному имени модели.");
                 return;
             }
         }
+
+        throw new NoSuchModelNameException(name);
     }
 
     public int getSizeOfModels() {
         return SizeOfModels;
     }
 
-    public void changeCostByName (String name, float newCost){
-        for(Model model: arrayOfModels){
-            if (model.getName().equals(name)) model.setCoast(newCost);
+    public void changeCostByName(String name, float newCost)
+            throws NoSuchModelNameException, ModelPriceOutOfBoundsException {
+
+        if (newCost <= 0) {
+            throw new ModelPriceOutOfBoundsException(newCost);
         }
+
+        if (arrayOfModels == null || arrayOfModels.length == 0) {
+            throw new NoSuchModelNameException(name);
+        }
+
+        for (Model model : arrayOfModels) {
+            if (model != null && model.getName().equals(name)) {
+                model.setCoast(newCost);
+                return;
+            }
+        }
+
+        throw new NoSuchModelNameException(name);
     }
 
-    public float getCoastByName (String name){
-        for(Model model: arrayOfModels){
-            if (model.getName().equals(name)) return model.getCoast();
+    public float getCoastByName(String name) throws NoSuchModelNameException {
+        if (arrayOfModels == null || arrayOfModels.length == 0) {
+            throw new NoSuchModelNameException(name);
         }
-        System.out.println("There is no such model");
-        return 0;
+
+        for (Model model : arrayOfModels) {
+            if (model != null && model.getName().equals(name)) {
+                return model.getCoast();
+            }
+        }
+        throw new NoSuchModelNameException(name);
     }
 
     private class Model {
