@@ -4,9 +4,10 @@ import org.example.exceptions.ModelPriceOutOfBoundsException;
 import org.example.exceptions.NoSuchModelNameException;
 import org.example.interf.Transport;
 
+import java.io.Serializable;
 import java.util.Arrays;
 
-public class Auto implements Transport {
+public class Auto implements Transport, Serializable{
     private String mark;
     private int SizeOfModels;
     private Model[] arrayOfModels;
@@ -146,7 +147,7 @@ public class Auto implements Transport {
         throw new NoSuchModelNameException(name);
     }
 
-    private class Model {
+    private class Model implements Serializable {
         private String name;
         private float coast;
 
@@ -158,15 +159,12 @@ public class Auto implements Transport {
         void setName(String name) {
             this.name = name;
         }
-
         void setCoast(float coast) {
             this.coast = coast;
         }
-
         public float getCoast() {
             return coast;
         }
-
         public String getName() {
             return name;
         }

@@ -2,7 +2,11 @@ package org.example;
 
 import org.example.exceptions.ModelPriceOutOfBoundsException;
 import org.example.exceptions.NoSuchModelNameException;
+import org.example.interf.Transport;
+import org.example.interf.TransportUtils;
 import org.example.mainAuto.Auto;
+
+import java.io.*;
 import java.util.Arrays;
 import java.util.InputMismatchException;
 import java.util.Scanner;
@@ -12,12 +16,121 @@ public class Main {
     private static Auto auto;
 
     public static void main(String[] args) {
-        initializeAuto();
-        addInitialModels();
-        runMainMenu();
+//        initializeAuto();
+//        addInitialModels();
+//        runMainMenu();
+        // checkIOOperations();
+        Auto myCar = new Auto("Lada", 2);
+        myCar.addModel("Granta", 500000f);
+        myCar.addModel("Vesta", 1200000f);
+
+        System.out.println("=== Исходный объект ===");
+        printAutoInfo(myCar);
+
+        // Сериализация - запись объекта в файл
+        String filename = "auto.ser";
+        try (ObjectOutputStream oos = new ObjectOutputStream(
+                new FileOutputStream(filename))) {
+
+            oos.writeObject(myCar);
+            System.out.println("\n✅ Объект успешно сериализован в файл: " + filename);
+
+        } catch (IOException e) {
+            System.err.println("❌ Ошибка при сериализации: " + e.getMessage());
+            return;
+        }
+
+        Auto restoredCar = null;
+
+        try (ObjectInputStream ois = new ObjectInputStream(
+                new FileInputStream(filename))) {
+
+            restoredCar = (Auto) ois.readObject();
+            System.out.println("✅ Объект успешно десериализован из файла: " + filename);
+
+        } catch (IOException | ClassNotFoundException e) {
+            System.err.println("❌ Ошибка при десериализации: " + e.getMessage());
+            return;
+        }
+
+        System.out.println("\n=== Восстановленный объект ===");
+        printAutoInfo(restoredCar);
+
+        // Сравнение объектов по сохраненным значениям
+        System.out.println("\n=== Сравнение объектов ===");
+        compareAutos(myCar, restoredCar);
+
+}
+
+    private static void compareAutos(Auto original, Auto restored) {
+        boolean isEqual = true;
+
+        // Сравниваем марки
+        if (!original.getMark().equals(restored.getMark())) {
+            System.out.println("❌ Марки не совпадают:");
+            System.out.println("  Оригинал: " + original.getMark());
+            System.out.println("  Восстановленный: " + restored.getMark());
+            isEqual = false;
+        }
+
+        // Сравниваем количество моделей
+        if (original.getSizeOfModels() != restored.getSizeOfModels()) {
+            System.out.println("❌ Количество моделей не совпадает:");
+            System.out.println("  Оригинал: " + original.getSizeOfModels());
+            System.out.println("  Восстановленный: " + restored.getSizeOfModels());
+            isEqual = false;
+        }
+
+        // Сравниваем модели и цены
+        try {
+            String[] originalNames = original.returnAllModelNames();
+            float[] originalPrices = original.returnAllModelCoast();
+            String[] restoredNames = restored.returnAllModelNames();
+            float[] restoredPrices = restored.returnAllModelCoast();
+
+            for (int i = 0; i < originalNames.length; i++) {
+                if (!originalNames[i].equals(restoredNames[i])) {
+                    System.out.println("❌ Названия моделей не совпадают:");
+                    System.out.println("  Оригинал: " + originalNames[i]);
+                    System.out.println("  Восстановленный: " + restoredNames[i]);
+                    isEqual = false;
+                }
+
+                if (Float.compare(originalPrices[i], restoredPrices[i]) != 0) {
+                    System.out.println("❌ Цены моделей не совпадают:");
+                    System.out.printf("  Оригинал: %.2f руб.%n", originalPrices[i]);
+                    System.out.printf("  Восстановленный: %.2f руб.%n", restoredPrices[i]);
+                    isEqual = false;
+                }
+            }
+        } catch (Exception e) {
+            System.err.println("Ошибка при сравнении моделей: " + e.getMessage());
+            isEqual = false;
+        }
+
+        if (isEqual) {
+            System.out.println("✅ Объекты идентичны по содержанию!");
+        } else {
+            System.out.println("❌ Объекты отличаются!");
+        }
     }
 
-    // Инициализация автомобиля
+    private static void printAutoInfo(Auto auto) {
+        try {
+            System.out.println("Марка: " + auto.getMark());
+            System.out.println("Количество моделей: " + auto.getSizeOfModels());
+
+            String[] names = auto.returnAllModelNames();
+            float[] prices = auto.returnAllModelCoast();
+
+            for (int i = 0; i < names.length; i++) {
+                System.out.printf("Модель: %s, Цена: %.2f руб.%n", names[i], prices[i]);
+            }
+        } catch (Exception e) {
+            System.err.println("Ошибка при выводе информации: " + e.getMessage());
+        }
+    }
+
     private static void initializeAuto() {
         System.out.print("Введите марку автомобиля: ");
         String mark = scanner.nextLine();
@@ -25,7 +138,6 @@ public class Main {
         auto = new Auto(mark, size);
     }
 
-    // Добавление начальных моделей
     private static void addInitialModels() {
         System.out.println("Опишите эти " + auto.getSizeOfModels() + " модели(-ей): ");
         for (int i = 0; i < auto.getSizeOfModels(); i++) {
@@ -34,7 +146,6 @@ public class Main {
         }
     }
 
-    // Главное меню
     private static void runMainMenu() {
         while (true) {
             printMenu();
@@ -43,7 +154,6 @@ public class Main {
         }
     }
 
-    // Вывод меню
     private static void printMenu() {
         System.out.println("\nМеню:");
         System.out.println("1. Добавить модель");
@@ -56,7 +166,6 @@ public class Main {
         System.out.println("8. Выход");
     }
 
-    // Обработка выбора в меню
     private static void handleMenuChoice(int choice) {
         switch (choice) {
             case 1 -> addNewModel();
@@ -71,7 +180,6 @@ public class Main {
         }
     }
 
-    // Методы для операций с моделями
     private static void addNewModel() {
         System.out.print("Введите название модели: ");
         String name = scanner.nextLine();
@@ -154,7 +262,6 @@ public class Main {
         System.exit(0);
     }
 
-    // Вспомогательные методы для ввода
     private static int getValidIntInput(String prompt) {
         while (true) {
             System.out.print(prompt);
@@ -178,6 +285,71 @@ public class Main {
             } finally {
                 scanner.nextLine();
             }
+        }
+    }
+
+    public static void checkIOOperations() {
+
+        Transport myCar = new Auto("Lada", 2);
+        myCar.addModel("Granta", 500000f);
+        myCar.addModel("Vesta", 1200000f);
+
+        System.out.println("=== Тестирование записи/чтения в файлы ===");
+
+        try (FileOutputStream fos = new FileOutputStream("vehicle_binary.dat")) {
+            TransportUtils.outputTransport(myCar, fos);
+            System.out.println("Данные записаны в бинарный файл");
+        } catch (IOException e) {
+            System.err.println("Ошибка записи: " + e.getMessage());
+        }
+
+        try (FileInputStream fis = new FileInputStream("vehicle_binary.dat")) {
+            Transport restoredCar = TransportUtils.inputTransport(fis);
+            System.out.println("Прочитано из бинарного файла: " + restoredCar.getMark());
+        } catch (IOException e) {
+            System.err.println("Ошибка чтения: " + e.getMessage());
+        }
+
+        try (FileWriter fw = new FileWriter("vehicle_text.txt")) {
+
+            fw.write(myCar.getMark() + "\n");
+            fw.write(myCar.getSizeOfModels() + "\n");
+            String[] names = myCar.returnAllModelNames();
+            float[] prices = myCar.returnAllModelCoast();
+            for (int i = 0; i < names.length; i++) {
+                fw.write(names[i] + " " + prices[i] + "\n");
+            }
+            System.out.println("Данные записаны в текстовый файл");
+        } catch (IOException e) {
+            System.err.println("Ошибка записи: " + e.getMessage());
+        }
+
+        try (FileReader fr = new FileReader("vehicle_text.txt")) {
+            Transport restoredCar = TransportUtils.readTransport(fr);
+            System.out.println("Прочитано из текстового файла: " + restoredCar.getMark());
+        } catch (IOException e) {
+            System.err.println("Ошибка чтения: " + e.getMessage());
+        }
+
+        System.out.println("\n=== Тестирование с System.in/System.out ===");
+
+        try {
+            System.out.println("Введите данные транспортного средства:");
+            System.out.println("Формат: марка, количество моделей, пары 'модель цена'");
+
+            Transport fromConsole = TransportUtils.readTransport(
+                    new InputStreamReader(System.in));
+            System.out.println("Получены данные: " + fromConsole.getMark());
+
+        } catch (IOException e) {
+            System.err.println("Ошибка чтения из консоли: " + e.getMessage());
+        }
+
+        try {
+            System.out.println("\nВывод данных в консоль:");
+            TransportUtils.outputTransport(myCar, System.out);
+        } catch (IOException e) {
+            System.err.println("Ошибка вывода: " + e.getMessage());
         }
     }
 }
