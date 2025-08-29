@@ -20,6 +20,16 @@ public class Main {
 //        addInitialModels();
 //        runMainMenu();
         // checkIOOperations();
+
+        Auto myCar = new Auto("Lada", 2);
+        myCar.addModel("Granta", 500000f);
+        myCar.addModel("Vesta", 1200000f);
+
+
+        System.out.println("Car information in new toString: " + myCar.toString());
+}
+
+    private static void workWithStreams (){
         Auto myCar = new Auto("Lada", 2);
         myCar.addModel("Granta", 500000f);
         myCar.addModel("Vesta", 1200000f);
@@ -27,7 +37,6 @@ public class Main {
         System.out.println("=== Исходный объект ===");
         printAutoInfo(myCar);
 
-        // Сериализация - запись объекта в файл
         String filename = "auto.ser";
         try (ObjectOutputStream oos = new ObjectOutputStream(
                 new FileOutputStream(filename))) {
@@ -56,11 +65,9 @@ public class Main {
         System.out.println("\n=== Восстановленный объект ===");
         printAutoInfo(restoredCar);
 
-        // Сравнение объектов по сохраненным значениям
         System.out.println("\n=== Сравнение объектов ===");
         compareAutos(myCar, restoredCar);
-
-}
+    }
 
     private static void compareAutos(Auto original, Auto restored) {
         boolean isEqual = true;

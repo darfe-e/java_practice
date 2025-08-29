@@ -6,6 +6,7 @@ import org.example.exceptions.NoSuchModelNameException;
 public interface Transport {
     String getMark();
 
+
     void setMark(String mark);
     void addModel(String name, float coast);
     void changeNameOfModel(String prevName, String newName) throws NoSuchModelNameException;
