@@ -7,6 +7,7 @@ import lombok.NoArgsConstructor;
 import lombok.NonNull;
 
 import java.time.LocalDate;
+import java.util.ArrayList;
 import java.util.List;
 
 @AllArgsConstructor
@@ -26,5 +27,5 @@ public class Artist {
   private String era;
 
   @OneToMany(mappedBy = "artist", cascade = CascadeType.ALL)
-  private List<Painting> paintings;
+  private List<Painting> paintings = new ArrayList<>();
 }

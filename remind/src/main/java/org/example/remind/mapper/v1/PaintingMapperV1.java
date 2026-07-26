@@ -1,5 +1,6 @@
 package org.example.remind.mapper.v1;
 
+import lombok.AllArgsConstructor;
 import lombok.NoArgsConstructor;
 import org.example.remind.dto.request.v1.PaintingRequestDtoV1;
 import org.example.remind.dto.response.v1.ArtistResponseBaseDtoV1;
@@ -11,12 +12,15 @@ import org.example.remind.service.command.PaintingCreateCommand;
 import org.example.remind.service.command.PaintingUpdateCommand;
 import org.springframework.stereotype.Component;
 
-@NoArgsConstructor
+@AllArgsConstructor
 @Component
 public class PaintingMapperV1 {
-  ArtistMapperV1 artistMapperV1;
+  private final ArtistMapperV1 artistMapperV1;
 
   public PaintingResponseBaseDtoV1 paintingToBaseDto(Painting painting){
+    if (painting == null){
+      return null;
+    }
     Artist artist = painting.getArtist();
     ArtistResponseBaseDtoV1 artistDto = artistMapperV1.artistToBaseDto(artist);
 
@@ -24,6 +28,9 @@ public class PaintingMapperV1 {
   }
 
   public PaintingResponseExtendDtoV1 paintingToExtendedDto(Painting painting){
+    if (painting == null){
+      return null;
+    }
     return new PaintingResponseExtendDtoV1(
         painting.getId(),
         painting.getName(),
@@ -35,6 +42,9 @@ public class PaintingMapperV1 {
 
   public PaintingCreateCommand dtoToCreateCommand (
       PaintingRequestDtoV1 dto){
+    if (dto == null){
+      return null;
+    }
     return new PaintingCreateCommand(
         dto.getName(),
         dto.getType(),
